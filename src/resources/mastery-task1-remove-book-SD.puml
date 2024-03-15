@@ -1,1 +1,42 @@
-PARTICIPANTS: use this file for creating the remove book from catalog diagram in mastery task 01
+@startuml RemoveBookFromCatalog Sequence Diagram
+
+participant "Client" as client
+participant "RemoveBookFromCatalogActivity" as activity
+participant "CatalogDao" as dao
+database "CatalogItemVersions" as db
+
+client -> activity: removeBookFromCatalog(request)
+activate activity
+
+alt bookId is valid and book is active
+    activity -> dao: getBookFromCatalog(bookId)
+    activate dao
+    dao -> db: query(bookId)
+    activate db
+    db --> dao: return CatalogItemVersion
+    deactivate db
+    dao --> activity: book found
+    deactivate dao
+    activity -> dao: deactivateBook(bookId)
+    activate dao
+    dao -> db: update(inactive = true)
+    db --> dao: update success
+    deactivate db
+    dao --> activity: book deactivated
+    deactivate dao
+    activity --> client: RemoveBookFromCatalogResponse{}
+else bookId not found or book is inactive
+    activity -> dao: getBookFromCatalog(bookId)
+    activate dao
+    dao -> db: query(bookId)
+    activate db
+    db --> dao: BookNotFoundException
+    deactivate db
+    dao --> activity: throw BookNotFoundException
+    deactivate dao
+    activity --> client: throw BookNotFoundException
+end
+
+deactivate activity
+
+@enduml

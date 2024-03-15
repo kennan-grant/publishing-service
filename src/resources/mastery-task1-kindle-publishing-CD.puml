@@ -1,1 +1,93 @@
-PARTICIPANTS: use this file for creating the class diagram in mastery task 01
+@startuml Kindle Publishing Service Updated Class Diagram
+
+enum BookGenre {
+    ACTION,
+    MYSTERY,
+    SCIFI,
+    NONFICTION
+}
+
+enum PublishingRecordStatus {
+    RECEIVED,
+    PROCESSING,
+    PUBLISHED,
+    FAILED
+}
+
+class GetBookActivity {
+    -recommendationServiceClient : RecommendationsServiceClient
+    -catalogDao : CatalogDao
+    +execute(request : GetBookRequest) : GetBookResponse
+}
+
+class RemoveBookFromCatalogActivity {
+    +execute(removeBookFromCatalogRequest : RemoveBookFromCatalogRequest) : RemoveBookFromCatalogResponse
+}
+
+class GetPublishingStatusActivity {
+    +execute(publishingStatusRequest : GetPublishingStatusRequest) : GetPublishingStatusResponse
+}
+
+class SubmitBookForPublishingActivity {
+    -publishingStatusDao : PublishingStatusDao
+    +execute(request : SubmitBookForPublishingRequest) : SubmitBookForPublishingResponse
+}
+
+class CatalogDao {
+    -dynamoDbMapper : DynamoDBMapper
+    +getBookFromCatalog(bookId : String) : CatalogItemVersion
+}
+
+CatalogDao ..> BookNotFoundException : throws
+
+class PublishingStatusDao {
+    -dynamoDbMapper : DynamoDBMapper
+    +setPublishingStatus(publishingRecordId : String, publishingRecordStatus : PublishingRecordStatus, bookId : String, message : String) : PublishingStatusItem
+}
+
+class BookNotFoundException {
+    +BookNotFoundException(message : String)
+    +BookNotFoundException(message : String, cause : Throwable)
+}
+
+class PublishingStatusNotFoundException {
+    +PublishingStatusNotFoundException(message : String)
+    +PublishingStatusNotFoundException(message : String, cause : Throwable)
+}
+
+class RecommendationsServiceClient {
+    -recommendationsService : RecommendationsService
+    +getBookRecommendations(genre : BookGenre) : List<BookRecommendation>
+}
+
+class CatalogItemVersion {
+    +@DynamoDBHashKey bookId : String
+    +@DynamoDBRangeKey version : int
+    +inactive : boolean
+    +title : String
+    +author : String
+    +text : String
+    +genre : BookGenre
+}
+
+CatalogDao --> CatalogItemVersion : accesses
+
+class PublishingStatusItem {
+    +@DynamoDBHashKey publishingRecordId : String @DynamoDBHashKey
+    +@DynamoDBRangeKey status : PublishingRecordStatus
+    +statusMessage : String
+    +bookId : String
+}
+
+PublishingStatusDao --> PublishingStatusItem : accesses
+
+GetBookActivity --> CatalogDao
+GetBookActivity --> RecommendationsServiceClient
+
+RemoveBookFromCatalogActivity --> CatalogDao
+
+GetPublishingStatusActivity --> PublishingStatusDao
+
+SubmitBookForPublishingActivity --> PublishingStatusDao
+
+@enduml
