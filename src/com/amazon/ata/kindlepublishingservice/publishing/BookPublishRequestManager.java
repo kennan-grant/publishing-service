@@ -1,11 +1,13 @@
 package com.amazon.ata.kindlepublishingservice.publishing;
 
+import javax.inject.Inject;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
 public class BookPublishRequestManager {
     Queue<BookPublishRequest> bookPublishRequestQueue;
 
+    @Inject
     public BookPublishRequestManager() {
         this.bookPublishRequestQueue = new ArrayDeque<>();
     }
