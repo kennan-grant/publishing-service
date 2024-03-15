@@ -43,12 +43,10 @@ public class CatalogDao {
         return book;
     }
 
-    public boolean validateBookExists(String bookId) {
-        CatalogItemVersion latestVersion = getLatestVersionOfBook(bookId);
-        if (latestVersion == null || latestVersion.isInactive()) {
+    public void validateBookExists(String bookId) {
+        if (getLatestVersionOfBook(bookId) == null) {
             throw new BookNotFoundException("Book with id " + bookId + " not found or already inactive.");
         }
-        return true;
     }
 
     public CatalogItemVersion removeBookFromCatalog(String bookId) {

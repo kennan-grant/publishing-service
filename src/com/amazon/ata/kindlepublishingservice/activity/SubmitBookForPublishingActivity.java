@@ -55,7 +55,9 @@ public class SubmitBookForPublishingActivity {
     public SubmitBookForPublishingResponse execute(SubmitBookForPublishingRequest request) {
         final BookPublishRequest bookPublishRequest = BookPublishRequestConverter.toBookPublishRequest(request);
 
-        catalogDao.validateBookExists(bookPublishRequest.getBookId());
+        if (bookPublishRequest.getBookId() != null) {
+            catalogDao.validateBookExists(bookPublishRequest.getBookId());
+        }
         bookPublishRequestManager.addBookPublishRequest(bookPublishRequest);
 
         PublishingStatusItem item =  publishingStatusDao.setPublishingStatus(bookPublishRequest.getPublishingRecordId(),
