@@ -5,7 +5,7 @@ participant "RemoveBookFromCatalogActivity" as activity
 participant "CatalogDao" as dao
 database "CatalogItemVersions" as db
 
-client -> activity: removeBookFromCatalog(request)
+client -> activity: execute(removeBookFromCatalog(request))
 activate activity
 
 alt bookId is valid and book is active

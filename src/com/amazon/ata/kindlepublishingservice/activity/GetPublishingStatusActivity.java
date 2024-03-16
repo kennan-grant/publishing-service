@@ -32,7 +32,7 @@ public class GetPublishingStatusActivity {
 
         List<PublishingStatusRecord> publishingStatusRecordList = new ArrayList<>();
         for (PublishingStatusItem item : publishingStatusItemList) {
-            publishingStatusRecordList.add(PublishingStatusConverter.toRecord(item))
+            publishingStatusRecordList.add(PublishingStatusConverter.toRecord(item));
         }
         return GetPublishingStatusResponse.builder()
                 .withPublishingStatusHistory(publishingStatusRecordList)
