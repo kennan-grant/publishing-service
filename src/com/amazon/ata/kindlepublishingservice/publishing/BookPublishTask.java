@@ -32,8 +32,6 @@ public class BookPublishTask implements Runnable {
     }
 
     public void run() {
-        LOGGER.info("Called run() in BookPublishTask"); /// DELETE THIS
-
         BookPublishRequest bookPublishRequest = bookPublishRequestManager.getBookPublishRequestToProcess();
         if (bookPublishRequest == null) {
             return;
