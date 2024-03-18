@@ -1,5 +1,6 @@
 package com.amazon.ata.kindlepublishingservice.dao;
 
+import com.amazon.ata.kindlepublishingservice.dynamodb.models.CatalogItemVersion;
 import com.amazon.ata.kindlepublishingservice.dynamodb.models.PublishingStatusItem;
 import com.amazon.ata.kindlepublishingservice.enums.PublishingRecordStatus;
 import com.amazon.ata.kindlepublishingservice.exceptions.PublishingStatusNotFoundException;
@@ -103,6 +104,17 @@ public class PublishingStatusDao {
                 bookPublishRequest.getPublishingRecordId(),
                 publishingRecordStatus,
                 bookPublishRequest.getBookId(),
+                null
+        );
+    }
+
+    public PublishingStatusItem addPublishingStatusItem(BookPublishRequest bookPublishRequest,
+                                                        CatalogItemVersion catalogItemVersion,
+                                                        PublishingRecordStatus publishingRecordStatus) {
+        return setPublishingStatus(
+                bookPublishRequest.getPublishingRecordId(),
+                publishingRecordStatus,
+                catalogItemVersion.getBookId(),
                 null
         );
     }

@@ -28,9 +28,10 @@ public class BookPublishTask implements Runnable {
     }
 
     public void run() {
-        CatalogItemVersion ??????
+        BookPublishRequest bookPublishRequest = null;
         try {
-            BookPublishRequest bookPublishRequest = bookPublishRequestManager.getBookPublishRequestToProcess();
+            CatalogItemVersion newVersion;
+            bookPublishRequest = bookPublishRequestManager.getBookPublishRequestToProcess();
             if (bookPublishRequest == null) {
                 return;
             }
@@ -43,11 +44,15 @@ public class BookPublishTask implements Runnable {
                 prevVersion = lastVersion.getVersion();
                 catalogDao.setInactive(lastVersion);
             }
-            catalogDao.addToCatalog(bookPublishRequest, 1 + prevVersion);
-            publishingStatusDao.addPublishingStatusItem(bookPublishRequest,
+            newVersion = catalogDao.addToCatalog(bookPublishRequest, 1 + prevVersion);
+            publishingStatusDao.addPublishingStatusItem(
+                    bookPublishRequest,
+                    newVersion,
                     PublishingRecordStatus.SUCCESSFUL);
         } catch (Exception e) {
-
+            publishingStatusDao.addPublishingStatusItem(
+                    bookPublishRequest,
+                    PublishingRecordStatus.FAILED);
         }
     }
 }
