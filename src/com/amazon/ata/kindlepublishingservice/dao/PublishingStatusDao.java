@@ -3,7 +3,9 @@ package com.amazon.ata.kindlepublishingservice.dao;
 import com.amazon.ata.kindlepublishingservice.dynamodb.models.PublishingStatusItem;
 import com.amazon.ata.kindlepublishingservice.enums.PublishingRecordStatus;
 import com.amazon.ata.kindlepublishingservice.exceptions.PublishingStatusNotFoundException;
+import com.amazon.ata.kindlepublishingservice.models.PublishingStatus;
 import com.amazon.ata.kindlepublishingservice.models.PublishingStatusRecord;
+import com.amazon.ata.kindlepublishingservice.publishing.BookPublishRequest;
 import com.amazon.ata.kindlepublishingservice.utils.KindlePublishingUtils;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
@@ -12,6 +14,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedQueryList;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
+import java.util.UUID;
 import javax.inject.Inject;
 
 /**
@@ -92,5 +95,15 @@ public class PublishingStatusDao {
             throw new PublishingStatusNotFoundException("No records associated with that recordId.");
         }
         return result;
+    }
+
+    public PublishingStatusItem addPublishingStatusItem(BookPublishRequest bookPublishRequest,
+                                                        PublishingRecordStatus publishingRecordStatus) {
+        return setPublishingStatus(
+                bookPublishRequest.getPublishingRecordId(),
+                publishingRecordStatus,
+                bookPublishRequest.getBookId(),
+                null
+        );
     }
 }

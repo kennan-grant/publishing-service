@@ -1,9 +1,11 @@
 package com.amazon.ata.kindlepublishingservice.publishing;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
+@Singleton
 public class BookPublishRequestManager {
     Queue<BookPublishRequest> bookPublishRequestQueue;
 

@@ -3,6 +3,7 @@ package com.amazon.ata.kindlepublishingservice.dao;
 import com.amazon.ata.kindlepublishingservice.dynamodb.models.CatalogItemVersion;
 import com.amazon.ata.kindlepublishingservice.exceptions.BookNotFoundException;
 import com.amazon.ata.kindlepublishingservice.models.Book;
+import com.amazon.ata.kindlepublishingservice.publishing.BookPublishRequest;
 import com.amazon.ata.kindlepublishingservice.publishing.KindleFormattedBook;
 import com.amazon.ata.kindlepublishingservice.utils.KindlePublishingUtils;
 
@@ -11,6 +12,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
+import java.util.UUID;
 import javax.inject.Inject;
 
 public class CatalogDao {
@@ -60,7 +62,7 @@ public class CatalogDao {
     }
 
     // Returns null if no version exists for the provided bookId
-    private CatalogItemVersion getLatestVersionOfBook(String bookId) {
+    public CatalogItemVersion getLatestVersionOfBook(String bookId) {
         CatalogItemVersion book = new CatalogItemVersion();
         book.setBookId(bookId);
 
@@ -74,5 +76,24 @@ public class CatalogDao {
             return null;
         }
         return results.get(0);
+    }
+
+    public void setInactive(CatalogItemVersion catalogItemVersion) {
+        catalogItemVersion.setInactive(true);
+        dynamoDbMapper.save(catalogItemVersion);
+    }
+
+    public CatalogItemVersion addToCatalog(BookPublishRequest bookPublishRequest, Integer version) {
+        CatalogItemVersion newCatalogItem = new CatalogItemVersion();
+
+        newCatalogItem.setVersion(version);
+        newCatalogItem.setBookId(version != 1 ? bookPublishRequest.getBookId() : UUID.randomUUID().toString());
+        newCatalogItem.setTitle(bookPublishRequest.getTitle());
+        newCatalogItem.setAuthor(bookPublishRequest.getAuthor());
+        newCatalogItem.setText(bookPublishRequest.getText());
+        newCatalogItem.setGenre(bookPublishRequest.getGenre());
+
+        dynamoDbMapper.save(newCatalogItem);
+        return newCatalogItem;
     }
 }
