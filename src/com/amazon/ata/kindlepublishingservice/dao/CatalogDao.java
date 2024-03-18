@@ -83,17 +83,29 @@ public class CatalogDao {
         dynamoDbMapper.save(catalogItemVersion);
     }
 
-    public CatalogItemVersion addToCatalog(BookPublishRequest bookPublishRequest, Integer version) {
-        CatalogItemVersion newCatalogItem = new CatalogItemVersion();
+    public CatalogItemVersion createOrUpdateBook(KindleFormattedBook kindleFormattedBook) {
+        CatalogItemVersion newOrUpdatedItem = new CatalogItemVersion();
+        int newVersionNumber = 0;
 
-        newCatalogItem.setVersion(version);
-        newCatalogItem.setBookId(version != 1 ? bookPublishRequest.getBookId() : UUID.randomUUID().toString());
-        newCatalogItem.setTitle(bookPublishRequest.getTitle());
-        newCatalogItem.setAuthor(bookPublishRequest.getAuthor());
-        newCatalogItem.setText(bookPublishRequest.getText());
-        newCatalogItem.setGenre(bookPublishRequest.getGenre());
+        if (kindleFormattedBook.getBookId() != null) {
+            validateBookExists(kindleFormattedBook.getBookId());
+            CatalogItemVersion prevVersionItem = getLatestVersionOfBook(kindleFormattedBook.getBookId());
+            newVersionNumber = prevVersionItem.getVersion();
+            setInactive(prevVersionItem);
+        }
+        if (kindleFormattedBook.getBookId() == null) {
+            newOrUpdatedItem.setBookId(KindlePublishingUtils.generateBookId());
+        }
 
-        dynamoDbMapper.save(newCatalogItem);
-        return newCatalogItem;
+        newOrUpdatedItem.setVersion(1 + newVersionNumber);
+
+        newOrUpdatedItem.setBookId(kindleFormattedBook.getBookId());
+        newOrUpdatedItem.setTitle(kindleFormattedBook.getTitle());
+        newOrUpdatedItem.setAuthor(kindleFormattedBook.getAuthor());
+        newOrUpdatedItem.setText(kindleFormattedBook.getText());
+        newOrUpdatedItem.setGenre(kindleFormattedBook.getGenre());
+
+        dynamoDbMapper.save(newOrUpdatedItem);
+        return newOrUpdatedItem;
     }
 }

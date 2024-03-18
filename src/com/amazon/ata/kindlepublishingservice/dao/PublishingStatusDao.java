@@ -97,25 +97,4 @@ public class PublishingStatusDao {
         }
         return result;
     }
-
-    public PublishingStatusItem addPublishingStatusItem(BookPublishRequest bookPublishRequest,
-                                                        PublishingRecordStatus publishingRecordStatus) {
-        return setPublishingStatus(
-                bookPublishRequest.getPublishingRecordId(),
-                publishingRecordStatus,
-                bookPublishRequest.getBookId(),
-                null
-        );
-    }
-
-    public PublishingStatusItem addPublishingStatusItem(BookPublishRequest bookPublishRequest,
-                                                        CatalogItemVersion catalogItemVersion,
-                                                        PublishingRecordStatus publishingRecordStatus) {
-        return setPublishingStatus(
-                bookPublishRequest.getPublishingRecordId(),
-                publishingRecordStatus,
-                catalogItemVersion.getBookId(),
-                null
-        );
-    }
 }

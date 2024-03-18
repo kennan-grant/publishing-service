@@ -10,13 +10,17 @@ import com.amazon.ata.kindlepublishingservice.exceptions.BookNotFoundException;
 import com.amazon.ata.kindlepublishingservice.models.requests.SubmitBookForPublishingRequest;
 import com.amazon.ata.kindlepublishingservice.models.response.SubmitBookForPublishingResponse;
 import com.amazon.ata.recommendationsservice.types.BookGenre;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.inject.Inject;
+import java.util.UUID;
 
 public class BookPublishTask implements Runnable {
     BookPublishRequestManager bookPublishRequestManager;
     PublishingStatusDao publishingStatusDao;
     CatalogDao catalogDao;
+    private static final Logger LOGGER = LogManager.getLogger(BookPublisher.class);
 
     @Inject
     public BookPublishTask(BookPublishRequestManager bookPublishRequestManager,
@@ -28,31 +32,32 @@ public class BookPublishTask implements Runnable {
     }
 
     public void run() {
-        BookPublishRequest bookPublishRequest = null;
-        try {
-            CatalogItemVersion newVersion;
-            bookPublishRequest = bookPublishRequestManager.getBookPublishRequestToProcess();
-            if (bookPublishRequest == null) {
-                return;
-            }
-            publishingStatusDao.addPublishingStatusItem(bookPublishRequest,
-                    PublishingRecordStatus.IN_PROGRESS);
+        LOGGER.info("Called run() in BookPublishTask"); /// DELETE THIS
 
-            Integer prevVersion = 0;
-            CatalogItemVersion lastVersion = catalogDao.getLatestVersionOfBook(bookPublishRequest.getBookId());
-            if (lastVersion != null) {
-                prevVersion = lastVersion.getVersion();
-                catalogDao.setInactive(lastVersion);
-            }
-            newVersion = catalogDao.addToCatalog(bookPublishRequest, 1 + prevVersion);
-            publishingStatusDao.addPublishingStatusItem(
-                    bookPublishRequest,
-                    newVersion,
-                    PublishingRecordStatus.SUCCESSFUL);
+        BookPublishRequest bookPublishRequest = bookPublishRequestManager.getBookPublishRequestToProcess();
+        if (bookPublishRequest == null) {
+            return;
+        }
+        publishingStatusDao.setPublishingStatus(
+                bookPublishRequest.getPublishingRecordId(),
+                PublishingRecordStatus.IN_PROGRESS,
+                bookPublishRequest.getBookId()
+        );
+        KindleFormattedBook kindleFormattedBook = KindleFormatConverter.format(bookPublishRequest);
+        try {
+            CatalogItemVersion newVersion = catalogDao.createOrUpdateBook(kindleFormattedBook);
+            publishingStatusDao.setPublishingStatus(
+                    bookPublishRequest.getPublishingRecordId(),
+                    PublishingRecordStatus.SUCCESSFUL,
+                    newVersion.getBookId() //// this part is crucial. Must get from new version, in case created.
+            );
         } catch (Exception e) {
-            publishingStatusDao.addPublishingStatusItem(
-                    bookPublishRequest,
-                    PublishingRecordStatus.FAILED);
+            publishingStatusDao.setPublishingStatus(
+                    bookPublishRequest.getPublishingRecordId(),
+                    PublishingRecordStatus.FAILED,
+                    bookPublishRequest.getBookId(),
+                    e.getMessage()
+            );
         }
     }
 }
