@@ -92,8 +92,7 @@ public class CatalogDao {
             CatalogItemVersion prevVersionItem = getLatestVersionOfBook(kindleFormattedBook.getBookId());
             newVersionNumber = prevVersionItem.getVersion();
             setInactive(prevVersionItem);
-        }
-        if (kindleFormattedBook.getBookId() == null) {
+        } else {
             newOrUpdatedItem.setBookId(KindlePublishingUtils.generateBookId());
         }
 
