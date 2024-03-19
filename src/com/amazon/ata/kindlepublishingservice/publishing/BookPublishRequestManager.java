@@ -2,8 +2,8 @@ package com.amazon.ata.kindlepublishingservice.publishing;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.ArrayDeque;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 @Singleton
 public class BookPublishRequestManager {
@@ -11,7 +11,7 @@ public class BookPublishRequestManager {
 
     @Inject
     public BookPublishRequestManager() {
-        this.bookPublishRequestQueue = new ArrayDeque<>();
+        this.bookPublishRequestQueue = new ConcurrentLinkedQueue<>();
     }
 
     public void addBookPublishRequest(BookPublishRequest request) {
