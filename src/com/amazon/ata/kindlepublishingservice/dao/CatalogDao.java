@@ -90,35 +90,28 @@ public class CatalogDao {
     public CatalogItemVersion createOrUpdateBook(KindleFormattedBook kindleFormattedBook) {
         CatalogItemVersion newOrUpdatedItem = new CatalogItemVersion();
         int newVersionNumber = 0;
+        String bookId;
 
         if (kindleFormattedBook.getBookId() != null) {
-            LOGGER.info("Failure point 1");
             validateBookExists(kindleFormattedBook.getBookId());
-            LOGGER.info("Failure point 2");
             CatalogItemVersion prevVersionItem = getLatestVersionOfBook(kindleFormattedBook.getBookId());
-            LOGGER.info("Failure point 3");
             newVersionNumber = prevVersionItem.getVersion();
-            LOGGER.info("Failure point 4");
             setInactive(prevVersionItem);
-            LOGGER.info("Failure point 5");
+            bookId = prevVersionItem.getBookId();
         } else {
-            LOGGER.info("Failure point ALT 1");
-            newOrUpdatedItem.setBookId(KindlePublishingUtils.generateBookId());
-            LOGGER.info("Failure point ALT 2");
+            bookId = KindlePublishingUtils.generateBookId();
+            newOrUpdatedItem.setBookId(bookId);
         }
 
         newOrUpdatedItem.setVersion(1 + newVersionNumber);
 
-        newOrUpdatedItem.setBookId(kindleFormattedBook.getBookId());
+        newOrUpdatedItem.setBookId(bookId);
         newOrUpdatedItem.setTitle(kindleFormattedBook.getTitle());
         newOrUpdatedItem.setAuthor(kindleFormattedBook.getAuthor());
         newOrUpdatedItem.setText(kindleFormattedBook.getText());
         newOrUpdatedItem.setGenre(kindleFormattedBook.getGenre());
 
-        LOGGER.info("Failure point OTHER 1");
-        LOGGER.info("Failure point (bookId): " + newOrUpdatedItem.getBookId());
         dynamoDbMapper.save(newOrUpdatedItem);
-        LOGGER.info("Failure point OTHER 2");
         return newOrUpdatedItem;
     }
 }
