@@ -50,6 +50,7 @@ public class BookPublishTask implements Runnable {
                     newVersion.getBookId() //// this part is crucial. Must get from new version, in case created.
             );
         } catch (Exception e) {
+            LOGGER.info(e.getMessage());
             publishingStatusDao.setPublishingStatus(
                     bookPublishRequest.getPublishingRecordId(),
                     PublishingRecordStatus.FAILED,

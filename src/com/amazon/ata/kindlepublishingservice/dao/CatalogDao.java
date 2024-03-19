@@ -4,12 +4,15 @@ import com.amazon.ata.kindlepublishingservice.dynamodb.models.CatalogItemVersion
 import com.amazon.ata.kindlepublishingservice.exceptions.BookNotFoundException;
 import com.amazon.ata.kindlepublishingservice.models.Book;
 import com.amazon.ata.kindlepublishingservice.publishing.BookPublishRequest;
+import com.amazon.ata.kindlepublishingservice.publishing.BookPublisher;
 import com.amazon.ata.kindlepublishingservice.publishing.KindleFormattedBook;
 import com.amazon.ata.kindlepublishingservice.utils.KindlePublishingUtils;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 import java.util.UUID;
@@ -18,6 +21,7 @@ import javax.inject.Inject;
 public class CatalogDao {
 
     private final DynamoDBMapper dynamoDbMapper;
+    private static final Logger LOGGER = LogManager.getLogger(CatalogDao.class);
 
     /**
      * Instantiates a new CatalogDao object.
@@ -88,12 +92,19 @@ public class CatalogDao {
         int newVersionNumber = 0;
 
         if (kindleFormattedBook.getBookId() != null) {
+            LOGGER.info("Failure point 1");
             validateBookExists(kindleFormattedBook.getBookId());
+            LOGGER.info("Failure point 2");
             CatalogItemVersion prevVersionItem = getLatestVersionOfBook(kindleFormattedBook.getBookId());
+            LOGGER.info("Failure point 3");
             newVersionNumber = prevVersionItem.getVersion();
+            LOGGER.info("Failure point 4");
             setInactive(prevVersionItem);
+            LOGGER.info("Failure point 5");
         } else {
+            LOGGER.info("Failure point ALT 1");
             newOrUpdatedItem.setBookId(KindlePublishingUtils.generateBookId());
+            LOGGER.info("Failure point ALT 2");
         }
 
         newOrUpdatedItem.setVersion(1 + newVersionNumber);
@@ -104,7 +115,10 @@ public class CatalogDao {
         newOrUpdatedItem.setText(kindleFormattedBook.getText());
         newOrUpdatedItem.setGenre(kindleFormattedBook.getGenre());
 
+        LOGGER.info("Failure point OTHER 1");
+        LOGGER.info("Failure point (bookId): " + newOrUpdatedItem.getBookId());
         dynamoDbMapper.save(newOrUpdatedItem);
+        LOGGER.info("Failure point OTHER 2");
         return newOrUpdatedItem;
     }
 }
