@@ -12,7 +12,7 @@ Publishing Service aims to streamline the process of book publishing. It was dev
 The project is not in active development at this time
 
 ## Tech/Framework Used
-The project is built using AWS DynamoDB and Java (assumes AWS ECS server)
+The project is built using AWS DynamoDB and Java (assumes AWS ECS)
 
 ## Bugs
 No known bugs at this time
